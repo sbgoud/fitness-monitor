@@ -17,12 +17,17 @@ const Home = () => {
   const [previousDays, setPreviousDays] = useState([]);
 
   useEffect(() => {
-    // Fetch previous days' data from Vercel Blob
     fetchPreviousData();
   }, []);
 
   const fetchPreviousData = async () => {
-    // Implement fetching logic from Vercel Blob
+    try {
+      const response = await fetch(`/api/readData?username=${username}`);
+      const data = await response.json();
+      setPreviousDays(data);
+    } catch (error) {
+      console.error('Failed to fetch previous data:', error);
+    }
   };
 
   const handleCheck = (activity) => {
@@ -34,13 +39,18 @@ const Home = () => {
   };
 
   const handleSubmit = async () => {
-    // Save data to Vercel Blob
-    await saveDataToBlob();
-    navigate('/login');
-  };
-
-  const saveDataToBlob = async () => {
-    // Implement saving logic to Vercel Blob
+    try {
+      await fetch('/api/writeData', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, data: activities }),
+      });
+      navigate('/login');
+    } catch (error) {
+      console.error('Failed to save data:', error);
+    }
   };
 
   return (
